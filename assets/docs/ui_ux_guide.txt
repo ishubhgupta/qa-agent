@@ -1,0 +1,227 @@
+E-SHOP CHECKOUT - UI/UX GUIDELINES
+
+DESIGN PRINCIPLES
+=================
+
+1. VISUAL HIERARCHY
+   - Primary actions (Add to Cart, Pay Now) use green (#4CAF50)
+   - Secondary actions (Apply Promo) use orange (#ff9800)
+   - Destructive actions (Remove) use red
+   - All buttons have hover states with darker shades
+
+2. COLOR SCHEME
+   - Primary: Green (#4CAF50) for success and primary actions
+   - Secondary: Orange (#ff9800) for promotional elements
+   - Background: Light gray (#f5f5f5)
+   - Text: Dark gray (#333) for headings, medium gray (#555) for labels
+   - Error: Red (#d32f2f)
+   - Success: Green (#155724) on light green background (#d4edda)
+
+3. TYPOGRAPHY
+   - Font family: Arial, sans-serif (web-safe)
+   - H1: 32px, centered, bold
+   - H2: 24px, with green bottom border
+   - H3: 18px
+   - Body text: 16px
+   - Labels: 16px, bold
+   - Prices: 24px, bold, green
+
+COMPONENT GUIDELINES
+====================
+
+BUTTONS
+-------
+- Primary buttons (Pay Now): Green background, white text, 15px padding
+- Secondary buttons (Apply Promo): Orange background, white text, 12px padding
+- Add to Cart: Green background, full width within product card
+- All buttons: 5px border radius, pointer cursor
+- Hover effect: Darker shade of button color
+- Disabled state: Gray background, no pointer cursor
+
+FORM FIELDS
+-----------
+- Width: 100% of container
+- Padding: 12px
+- Border: 1px solid #ddd
+- Border radius: 5px
+- Font size: 16px
+- Focus state: Blue outline
+- Required fields: Marked with asterisk (*)
+
+INPUT VALIDATION
+----------------
+- Real-time validation on blur
+- Error messages displayed below input in red
+- Error message font size: 14px
+- Error messages hidden by default (display: none)
+- Show error messages when validation fails
+- Required field errors: "Please enter your [field name]"
+- Email validation: "Please enter a valid email address"
+- Phone validation: "Please enter a valid phone number"
+
+ERROR MESSAGES
+--------------
+- Display: Below the input field
+- Color: Red (#d32f2f)
+- Background: Light red (#f8d7da) with padding for standalone errors
+- Font weight: Normal
+- Clear previous errors before showing new ones
+
+SUCCESS MESSAGES
+----------------
+- Display: Prominent position after action completion
+- Color: Dark green (#155724)
+- Background: Light green (#d4edda)
+- Font weight: Bold
+- Padding: 20px
+- Border radius: 5px
+- Examples:
+  * Promo code applied: "Promo code [CODE] applied successfully!"
+  * Payment success: "Payment Successful! Thank you for your order."
+
+PRODUCT CARDS
+-------------
+- Layout: Grid with auto-fit, minimum 250px per card
+- Border: 1px solid #ddd
+- Border radius: 5px
+- Padding: 15px
+- Image placeholder: 200px height, light gray background
+- Product name: Centered, 18px
+- Price: Large (24px), bold, green, centered
+- Add to Cart button: Full width, green
+
+CART DISPLAY
+------------
+- Background: Light gray (#f9f9f9)
+- Padding: 20px
+- Border radius: 5px
+- Each item: Flexbox layout with space-between
+- Item separator: 1px solid #ddd
+- Quantity input: 60px width, centered text
+- Remove button: Red X symbol, no border or background
+- Empty cart message: Centered, gray color, 18px
+
+CART TOTALS
+-----------
+- Position: Right-aligned
+- Font size: 24px for final total
+- Subtotal, discount, shipping: 18px
+- Bold font weight
+- Final total: Green color
+- Top border: 2px solid black
+- Padding top: 20px
+
+PROMO CODE SECTION
+------------------
+- Background: Light yellow (#fffbf0)
+- Padding: 20px
+- Border radius: 5px
+- Input and button: Flexbox row with 10px gap
+- Input: Flexible width, 12px padding
+- Button: Orange background, white text
+- Success message: Green background
+- Error message: Red background
+
+SHIPPING & PAYMENT OPTIONS
+---------------------------
+- Radio buttons: Horizontal layout with 20px gap
+- Label: Flex display with 8px gap between radio and text
+- Font weight: Normal for options
+- Checked state: Browser default with blue accent
+- Group spacing: 10px margin top
+
+FORM LAYOUT
+-----------
+- Section margin: 30px bottom
+- Form group margin: 20px bottom
+- Label: Display block, 5px margin bottom, bold
+- Textarea: Minimum height 80px, vertical resize only
+- Required asterisk: Red color
+
+RESPONSIVE DESIGN
+-----------------
+- Container: Max width 1200px, centered
+- Products grid: Auto-fit with minimum 250px
+- Mobile optimization: Stack elements vertically on small screens
+- Touch targets: Minimum 44px for buttons on mobile
+- Form fields: Full width on all screen sizes
+
+ACCESSIBILITY
+-------------
+- All form fields have associated labels
+- Required fields marked with asterisk
+- Error messages use aria-live regions (implicit)
+- Button text is descriptive
+- Color contrast ratio: Minimum 4.5:1
+- Focus indicators visible on all interactive elements
+
+INTERACTIONS
+------------
+- Hover states: All buttons darken slightly
+- Click feedback: Immediate visual response
+- Form submission: Prevent default, show loading state
+- Cart updates: Instant without page reload
+- Promo code application: Immediate feedback
+- Quantity changes: Auto-recalculate totals
+
+SPACING & LAYOUT
+----------------
+- Container padding: 30px
+- Section spacing: 30px vertical
+- Card gap: 20px
+- Form field spacing: 20px vertical
+- Button spacing: 10px between multiple buttons
+- Content max-width: 1200px
+
+CHECKOUT FLOW UX
+================
+
+STEP 1: PRODUCT SELECTION
+- Clear product information with images
+- Prominent pricing
+- Easy-to-find Add to Cart buttons
+- Instant feedback when item added
+
+STEP 2: CART REVIEW
+- Clear list of selected items
+- Easy quantity adjustment
+- Visible pricing breakdown
+- Option to remove items
+
+STEP 3: PROMO CODE (OPTIONAL)
+- Clearly labeled section
+- Easy to skip if not needed
+- Clear success/error feedback
+- Shows discount impact on total
+
+STEP 4: USER DETAILS
+- Logical field order (name, email, phone, address)
+- Clear required field indicators
+- Helpful placeholder text
+- Real-time validation
+
+STEP 5: SHIPPING SELECTION
+- Clear options with pricing
+- Default to free shipping
+- Cost impact immediately visible in total
+
+STEP 6: PAYMENT SELECTION
+- Clear payment method options
+- Secure payment indicators
+- Default to credit card
+
+STEP 7: SUBMIT
+- Large, prominent Pay Now button
+- Clear button text
+- Success message after completion
+- Form hidden after success
+
+USER FEEDBACK REQUIREMENTS
+===========================
+
+- Loading states: Show spinner or "Processing..." during async operations
+- Success confirmations: Clear, prominent, with checkmark icon
+- Error notifications: Specific, actionable messages
+- Empty states: Helpful messages (e.g., "Your cart is empty")
+- Progress indicators: For multi-step processes
+- Hover tooltips: For additional information where needed

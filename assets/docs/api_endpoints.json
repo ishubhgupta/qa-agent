@@ -1,0 +1,332 @@
+{
+  "api_version": "1.0",
+  "base_url": "https://api.eshop.example.com/v1",
+  "endpoints": {
+    "cart": {
+      "add_item": {
+        "method": "POST",
+        "path": "/cart/add",
+        "description": "Add an item to the shopping cart",
+        "request_body": {
+          "product_id": "integer (required)",
+          "quantity": "integer (required, min: 1)",
+          "customer_id": "string (optional)"
+        },
+        "response": {
+          "success": "boolean",
+          "cart_id": "string",
+          "item_count": "integer",
+          "subtotal": "decimal"
+        },
+        "errors": {
+          "400": "Invalid product_id or quantity",
+          "404": "Product not found",
+          "500": "Internal server error"
+        }
+      },
+      "update_quantity": {
+        "method": "PUT",
+        "path": "/cart/update",
+        "description": "Update item quantity in cart",
+        "request_body": {
+          "cart_id": "string (required)",
+          "product_id": "integer (required)",
+          "quantity": "integer (required, min: 0)"
+        },
+        "response": {
+          "success": "boolean",
+          "cart_id": "string",
+          "item_count": "integer",
+          "subtotal": "decimal"
+        },
+        "notes": "Setting quantity to 0 removes the item"
+      },
+      "remove_item": {
+        "method": "DELETE",
+        "path": "/cart/remove",
+        "description": "Remove an item from cart",
+        "request_body": {
+          "cart_id": "string (required)",
+          "product_id": "integer (required)"
+        },
+        "response": {
+          "success": "boolean",
+          "cart_id": "string",
+          "item_count": "integer",
+          "subtotal": "decimal"
+        }
+      },
+      "get_cart": {
+        "method": "GET",
+        "path": "/cart/{cart_id}",
+        "description": "Retrieve cart contents",
+        "response": {
+          "cart_id": "string",
+          "items": "array of cart_item objects",
+          "subtotal": "decimal",
+          "discount": "decimal",
+          "shipping": "decimal",
+          "total": "decimal"
+        }
+      }
+    },
+    "promo_codes": {
+      "apply_coupon": {
+        "method": "POST",
+        "path": "/promo/apply",
+        "description": "Apply a promotional discount code",
+        "request_body": {
+          "code": "string (required)",
+          "cart_id": "string (required)"
+        },
+        "response": {
+          "success": "boolean",
+          "code": "string",
+          "discount_type": "percentage|fixed|free_shipping",
+          "discount_value": "decimal",
+          "discount_amount": "decimal",
+          "message": "string"
+        },
+        "valid_codes": {
+          "SAVE15": {
+            "type": "percentage",
+            "value": 15,
+            "description": "15% off entire order"
+          },
+          "SAVE20": {
+            "type": "percentage",
+            "value": 20,
+            "description": "20% off entire order",
+            "minimum_order": 100
+          },
+          "FREESHIP": {
+            "type": "free_shipping",
+            "value": 0,
+            "description": "Free express shipping"
+          }
+        },
+        "errors": {
+          "400": "Invalid or expired promo code",
+          "422": "Promo code not applicable to current order"
+        },
+        "notes": "Codes are case-insensitive"
+      },
+      "remove_coupon": {
+        "method": "DELETE",
+        "path": "/promo/remove",
+        "description": "Remove applied promo code",
+        "request_body": {
+          "cart_id": "string (required)"
+        },
+        "response": {
+          "success": "boolean",
+          "message": "string"
+        }
+      },
+      "validate_coupon": {
+        "method": "POST",
+        "path": "/promo/validate",
+        "description": "Check if promo code is valid without applying",
+        "request_body": {
+          "code": "string (required)",
+          "cart_total": "decimal (optional)"
+        },
+        "response": {
+          "valid": "boolean",
+          "code": "string",
+          "discount_type": "string",
+          "discount_value": "decimal",
+          "requirements": "object"
+        }
+      }
+    },
+    "checkout": {
+      "submit_order": {
+        "method": "POST",
+        "path": "/checkout/submit",
+        "description": "Process order and payment",
+        "request_body": {
+          "cart_id": "string (required)",
+          "customer_name": "string (required)",
+          "customer_email": "string (required, format: email)",
+          "customer_phone": "string (required)",
+          "shipping_address": "string (required)",
+          "shipping_method": "standard|express (required)",
+          "payment_method": "credit-card|paypal (required)",
+          "promo_code": "string (optional)"
+        },
+        "response": {
+          "success": "boolean",
+          "order_id": "string",
+          "order_total": "decimal",
+          "confirmation_email": "string",
+          "estimated_delivery": "date"
+        },
+        "validation_rules": {
+          "customer_name": "Minimum 2 characters",
+          "customer_email": "Valid email format",
+          "customer_phone": "Numbers, spaces, hyphens, parentheses allowed",
+          "shipping_address": "Minimum 10 characters"
+        },
+        "errors": {
+          "400": "Invalid or missing required fields",
+          "402": "Payment processing failed",
+          "404": "Cart not found",
+          "422": "Validation error"
+        }
+      },
+      "calculate_total": {
+        "method": "POST",
+        "path": "/checkout/calculate",
+        "description": "Calculate order total with all fees",
+        "request_body": {
+          "cart_id": "string (required)",
+          "shipping_method": "standard|express (required)",
+          "promo_code": "string (optional)"
+        },
+        "response": {
+          "subtotal": "decimal",
+          "discount": "decimal",
+          "shipping": "decimal",
+          "tax": "decimal",
+          "total": "decimal",
+          "breakdown": "object"
+        }
+      }
+    },
+    "shipping": {
+      "get_methods": {
+        "method": "GET",
+        "path": "/shipping/methods",
+        "description": "Get available shipping methods",
+        "response": {
+          "methods": [
+            {
+              "id": "standard",
+              "name": "Standard Shipping",
+              "cost": 0,
+              "delivery_days": "5-7",
+              "tracking": true
+            },
+            {
+              "id": "express",
+              "name": "Express Shipping",
+              "cost": 10,
+              "delivery_days": "1-2",
+              "tracking": true,
+              "real_time_tracking": true
+            }
+          ]
+        }
+      },
+      "calculate_shipping": {
+        "method": "POST",
+        "path": "/shipping/calculate",
+        "description": "Calculate shipping cost",
+        "request_body": {
+          "shipping_method": "string (required)",
+          "weight": "decimal (optional)",
+          "destination": "string (optional)"
+        },
+        "response": {
+          "method": "string",
+          "cost": "decimal",
+          "estimated_delivery": "string"
+        }
+      }
+    },
+    "payment": {
+      "process_credit_card": {
+        "method": "POST",
+        "path": "/payment/credit-card",
+        "description": "Process credit card payment",
+        "request_body": {
+          "order_id": "string (required)",
+          "card_number": "string (required, 16 digits)",
+          "expiry_month": "integer (required, 1-12)",
+          "expiry_year": "integer (required)",
+          "cvv": "string (required, 3-4 digits)",
+          "cardholder_name": "string (required)"
+        },
+        "response": {
+          "success": "boolean",
+          "transaction_id": "string",
+          "amount": "decimal",
+          "currency": "USD",
+          "status": "approved|declined|pending"
+        },
+        "supported_cards": ["Visa", "MasterCard", "American Express", "Discover"]
+      },
+      "process_paypal": {
+        "method": "POST",
+        "path": "/payment/paypal",
+        "description": "Initialize PayPal payment",
+        "request_body": {
+          "order_id": "string (required)",
+          "return_url": "string (required)",
+          "cancel_url": "string (required)"
+        },
+        "response": {
+          "success": "boolean",
+          "paypal_redirect_url": "string",
+          "transaction_id": "string"
+        }
+      },
+      "verify_payment": {
+        "method": "GET",
+        "path": "/payment/verify/{transaction_id}",
+        "description": "Verify payment status",
+        "response": {
+          "transaction_id": "string",
+          "status": "completed|pending|failed",
+          "amount": "decimal",
+          "payment_method": "string",
+          "timestamp": "datetime"
+        }
+      }
+    }
+  },
+  "data_models": {
+    "cart_item": {
+      "product_id": "integer",
+      "product_name": "string",
+      "price": "decimal",
+      "quantity": "integer",
+      "subtotal": "decimal"
+    },
+    "order": {
+      "order_id": "string",
+      "cart_id": "string",
+      "customer_name": "string",
+      "customer_email": "string",
+      "customer_phone": "string",
+      "shipping_address": "string",
+      "shipping_method": "string",
+      "payment_method": "string",
+      "subtotal": "decimal",
+      "discount": "decimal",
+      "shipping_cost": "decimal",
+      "tax": "decimal",
+      "total": "decimal",
+      "status": "pending|processing|shipped|delivered|cancelled",
+      "created_at": "datetime",
+      "updated_at": "datetime"
+    }
+  },
+  "error_codes": {
+    "400": "Bad Request - Invalid parameters",
+    "401": "Unauthorized - Authentication required",
+    "404": "Not Found - Resource not found",
+    "422": "Unprocessable Entity - Validation error",
+    "500": "Internal Server Error",
+    "503": "Service Unavailable"
+  },
+  "rate_limiting": {
+    "requests_per_minute": 60,
+    "requests_per_hour": 1000
+  },
+  "authentication": {
+    "type": "Bearer Token",
+    "header": "Authorization: Bearer {token}"
+  }
+}
