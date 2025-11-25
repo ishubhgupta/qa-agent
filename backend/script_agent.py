@@ -48,40 +48,99 @@ class ScriptAgent:
         # Format selectors as JSON
         selectors_json = json.dumps(html_selectors, indent=2)
         
-        prompt = f"""You are a Selenium test automation expert. Generate a complete, executable Python Selenium script for the following test case.
-
-STRICT RULES:
-1. Use ONLY the provided HTML selectors below
-2. Include WebDriverWait for dynamic elements (use explicit waits, not time.sleep)
-3. Implement ALL test steps in sequence
-4. Add assertions for expected results
-5. Include proper setup and teardown
-6. Use pytest framework
-7. Add comments for clarity
-8. Handle potential exceptions gracefully
-9. Use appropriate Selenium best practices
+        prompt = f"""Generate a complete Python Selenium pytest script following this EXACT template structure.
 
 TEST CASE:
 {test_case_json}
 
-AVAILABLE HTML SELECTORS:
+HTML SELECTORS:
 {selectors_json}
 
-CONTEXT FROM DOCUMENTATION:
+CONTEXT:
 {context}
 
-Generate a complete, executable Python script using pytest and Selenium WebDriver.
-Include:
-- Proper imports (selenium, pytest, WebDriverWait, etc.)
-- Setup fixture for WebDriver initialization
-- Test function implementing all steps
-- Explicit waits for elements
-- Assertions for expected results
-- Proper error handling
-- Teardown/cleanup
+```python
+# STEP 1: Imports (ALWAYS include these)
+import pytest
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-IMPORTANT: Output ONLY the raw Python code without any markdown formatting, code blocks, or explanations.
-Do NOT wrap the code in ```python or ``` markers. Just output the executable Python code directly."""
+BASE_URL = "file:///c:/d/Projects/qa-agent/assets/checkout.html"
+
+# STEP 2: Driver fixture (ALWAYS same)
+@pytest.fixture(scope="module")
+def driver():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.implicitly_wait(5)
+    yield driver
+    driver.quit()
+
+# STEP 3: Test function (adapt name and steps to test case)
+def test_discount_code_validation(driver):
+    wait = WebDriverWait(driver, 10)
+    try:
+        # Navigate to page
+        driver.get(BASE_URL)
+        wait.until(EC.presence_of_element_located((By.ID, "checkout-form")))
+        
+        # BEFORE applying promo: Get initial subtotal
+        subtotal_elem = wait.until(EC.presence_of_element_located((By.ID, "subtotal")))
+        initial_subtotal = float(subtotal_elem.text)
+        
+        # Add product (adjust data-id based on test case)
+        add_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-id='3'] .btn-add-cart")))
+        add_btn.click()
+        time.sleep(0.5)
+        
+        # Enter promo code
+        promo_input = wait.until(EC.presence_of_element_located((By.ID, "promo-code")))
+        promo_input.send_keys("SAVE15")
+        
+        # Apply promo
+        apply_btn = wait.until(EC.element_to_be_clickable((By.ID, "apply-promo")))
+        apply_btn.click()
+        time.sleep(0.5)
+        
+        # Check success message (flexible checking)
+        msg_elem = wait.until(EC.visibility_of_element_located((By.ID, "promo-message")))
+        assert "success" in msg_elem.text.lower() or "applied" in msg_elem.text.lower()
+        
+        # Verify discount amount (NOT subtotal - subtotal stays same!)
+        disc_elem = wait.until(EC.presence_of_element_located((By.ID, "discount")))
+        disc_amount = float(disc_elem.text)
+        expected_disc = round(initial_subtotal * 0.15, 2)
+        assert disc_amount == expected_disc
+        
+        print("✅ TEST PASSED")
+    except Exception as e:
+        driver.save_screenshot(f"failure_{time.time()}.png")
+        raise
+
+# STEP 4: Main block (ALWAYS same)
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "-s"])
+```
+
+CRITICAL RULES:
+1. Get initial_subtotal BEFORE applying promo (it's needed for expected discount calculation)
+2. Selenium syntax: (By.ID, "value") is a TUPLE - use parentheses and comma
+3. Success message: assert "success" in msg_elem.text.lower() - NEVER check exact text
+4. Validate discount element (By.ID, "discount") - NOT subtotal (subtotal never changes)
+5. Product buttons: [data-id='X'] .btn-add-cart where X is 1, 2, or 3
+6. Add time.sleep(0.5) after clicks
+7. Include 'import time' at top
+
+OUTPUT: Raw Python code only, no markdown fences, no explanations
+2. COMPLETE script - imports, BASE_URL, fixture, test function, exception handling, if __name__ block
+3. Must be 100+ lines for a proper test with all steps, assertions, and error handling
+4. Include ALL imports at top, ALL test steps in order, ALL assertions
+5. End with: if __name__ == "__main__": pytest.main([__file__, "-v", "-s"])
+
+Generate the COMPLETE executable script now:"""
         
         return prompt
     
@@ -90,11 +149,14 @@ Do NOT wrap the code in ```python or ``` markers. Just output the executable Pyt
         
         for attempt in range(max_retries):
             try:
+                # Use higher token limit for script generation (scripts are longer)
+                max_tokens = 8192  # Increased from 4096 for complete scripts
+                
                 response = self.model.generate_content(
                     prompt,
                     generation_config=genai.types.GenerationConfig(
                         temperature=Config.LLM_TEMPERATURE,
-                        max_output_tokens=Config.LLM_MAX_TOKENS,
+                        max_output_tokens=max_tokens,
                     )
                 )
                 

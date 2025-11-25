@@ -72,3 +72,4 @@ chroma.sqlite3
 Thumbs.db
 .DS_Store
 .kiro
+test.py
