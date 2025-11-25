@@ -1,5 +1,5 @@
 import json
-import fitz  # PyMuPDF
+from pypdf import PdfReader  # Using pypdf instead of PyMuPDF for better compatibility
 from pathlib import Path
 from typing import Dict, List, Any
 from bs4 import BeautifulSoup
@@ -96,12 +96,12 @@ class DocumentParser:
     
     @staticmethod
     def parse_pdf(file_path: str) -> Dict[str, Any]:
-        """Parse PDF file using pymupdf"""
-        doc = fitz.open(file_path)
+        """Parse PDF file using pypdf"""
+        reader = PdfReader(file_path)
         text_parts = []
         
-        for page in doc:
-            text_parts.append(page.get_text())
+        for page in reader.pages:
+            text_parts.append(page.extract_text())
         
         text = "\n".join(text_parts)
         text = clean_text(text)

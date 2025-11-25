@@ -17,7 +17,7 @@ google-generativeai==0.3.2
 
 # Document Parsing
 beautifulsoup4==4.12.3
-pymupdf==1.23.21
+pypdf==3.17.0
 markdown==3.5.2
 
 # Selenium
